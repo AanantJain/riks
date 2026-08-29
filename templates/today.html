@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Today{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Daily bot · {{ snap.today.weekday if snap.today else '' }} · {{ snap.classified.clock.mode_meta.label if snap.classified.clock else '' }}</p>
+    <h1>What has to be done today</h1>
+    {% if snap.today %}<p class="lede">{{ snap.today.note }}</p>{% endif %}
+  </div>
+  {% if snap.classified.clock %}
+  <div class="stat-stack">
+    <div class="stat">
+      <b>{{ snap.classified.clock.remaining_days }}</b>
+      <span>days left</span>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+{% set clock = snap.classified.clock %}{% set progress = snap.classified.progress %}{% set event = 'contest' %}
+{% include "partials/clock.html" %}
+
+<div class="bot-layout">
+  <section class="transcript" aria-label="RIKS coach">
+    {% for m in snap.messages %}
+      <article class="bubble">
+        <span class="who">RIKS</span>
+        <p>{{ m.text | replace('\n', '<br>') | safe }}</p>
+      </article>
+    {% endfor %}
+    {% if snap.yesterday and not snap.yesterday.completed %}
+      <form class="card form compact" method="post" action="/yesterday-reason">
+        <label>Why was yesterday incomplete?
+          <select name="reason">
+            <option value="stuck">I did not know how to start the topic</option>
+            <option value="contest">Contest / virtual ran long</option>
+            <option value="energy">Could not sit long enough</option>
+            <option value="other">Something else</option>
+          </select>
+        </label>
+        <button class="btn solid" type="submit">Tell RIKS</button>
+      </form>
+    {% endif %}
+  </section>
+
+  <aside>
+    {% if snap.today %}
+      <div class="card">
+        <h2>Today’s drill</h2>
+        <ul class="topic-list">
+          {% for t in snap.today.tasks %}
+            <li>
+              <span class="tag">{{ t.oj }}</span>
+              <a href="{{ t.url }}" target="_blank" rel="noopener">{{ t.name }}</a>
+              <em>{{ t.minutes }} min</em>
+              <a class="btn small" href="/practice?module={{ t.module_id }}">Try here</a>
+              <form class="inline" method="post" action="/mark/{{ t.id }}">
+                <input type="hidden" name="next" value="/today" />
+                <button name="status" value="solved">Solved</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+        {% if snap.today.periodic %}
+          <a class="btn brass" href="/contests">{{ snap.today.periodic.title }}</a>
+        {% endif %}
+        <a class="btn solid" href="/practice/daily">Daily exam in RIKS</a>
+      </div>
+    {% endif %}
+    <div class="card">
+      <h2>Stuck on a chapter?</h2>
+      <p class="muted">Stuck on a live-judge statement? Open Practice — we have a graded drill for the same skill, then a free article.</p>
+      <a class="btn ghost" href="/practice">Open practice</a>
+      <a class="btn ghost" href="/resources">Library</a>
+    </div>
+  </aside>
+</div>
+{% endblock %}

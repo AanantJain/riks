@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Practice{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">In-app judge · {{ solved_n }}/{{ total_n }} drills accepted</p>
+    <h1>Try a question. We evaluate it.</h1>
+    <p class="lede">
+      These are original drills for the same skills as CSES, the Competitive Programmer’s Handbook,
+      USACO Guide, and CP-Algorithms — not a dump of Codeforces statements.
+      MCQs and short answers are graded here. Python programs run against hidden tests.
+    </p>
+  </div>
+  <div class="stat-stack">
+    <div class="stat">
+      <b>{{ solved_n }}</b>
+      <span>accepted</span>
+    </div>
+  </div>
+</section>
+
+<p class="cta-row">
+  <a class="btn solid" href="/practice/daily">Daily exam (5 questions, graded here)</a>
+  <a class="btn brass" href="/today">Today’s named set</a>
+</p>
+
+<nav class="chips wrap">
+  <a class="chip {% if not filter_module %}on{% endif %}" href="/practice">All</a>
+  {% for m in modules %}
+    <a class="chip {% if filter_module == m.id %}on{% endif %}" href="/practice?module={{ m.id }}">{{ m.title }}</a>
+  {% endfor %}
+</nav>
+
+<table class="probs">
+  <thead>
+    <tr><th>Drill</th><th>Module</th><th>Kind</th><th>~CF</th><th>Source skill</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for d in listed %}
+      <tr class="{{ d.status }}">
+        <td>
+          <a href="/practice/{{ d.id }}">{{ d.title }}</a>
+        </td>
+        <td>{{ d.module_id }}</td>
+        <td>{{ d.type }}</td>
+        <td>{{ d.rating }}</td>
+        <td>
+          {% if d.source %}
+            <a href="{{ d.source.url }}" target="_blank" rel="noopener">{{ d.source.title }}</a>
+          {% endif %}
+        </td>
+        <td>
+          {% if d.status == 'solved' %}<span class="tag">accepted</span>
+          {% else %}<a class="btn small" href="/practice/{{ d.id }}">Try</a>{% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

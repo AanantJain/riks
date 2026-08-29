@@ -1,0 +1,24 @@
+{% if clock and progress %}
+<section class="clock-strip status-{{ progress.status }}" aria-label="Time remaining">
+  <div class="clock-count">
+    <p class="eyebrow">Time to {{ event | default('contest') }}</p>
+    <p class="count">{{ clock.headline }}</p>
+    <p class="muted">{{ clock.until }} · {{ clock.mode_meta.label }} — {{ clock.mode_meta.blurb }}</p>
+  </div>
+  <div class="clock-bars">
+    <p class="status-pill">{{ progress.status | replace('_', ' ') }}</p>
+    <p class="status-line">{{ progress.status_line }}</p>
+    <div class="dual">
+      <div>
+        <span>Calendar used {{ clock.time_used_pct }}%</span>
+        <div class="bar time"><i style="width: {{ clock.time_used_pct }}%"></i></div>
+      </div>
+      <div>
+        <span>Progress vs target {{ progress.progress_pct }}%</span>
+        <div class="bar work"><i style="width: {{ progress.progress_pct if progress.progress_pct < 100 else 100 }}%"></i></div>
+      </div>
+    </div>
+    <p class="tiny">Need ~{{ progress.need_per_day }} {{ progress.unit | default('rating') }}/day · must-do mastery {{ progress.must_mastery }}%</p>
+  </div>
+</section>
+{% endif %}

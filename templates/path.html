@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Path{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Progress · projected ~{{ snap.classified.projected }} / {{ snap.classified.target }}</p>
+    <h1>Where the rating is coming from</h1>
+    <p class="lede">Each row is a module. Mastery is seeded from what you told RIKS, then pulled toward solves on free judges. The clock below is how that evidence sits against the days you still have.</p>
+  </div>
+</section>
+
+{% set clock = snap.classified.clock %}{% set progress = snap.classified.progress %}{% set event = 'contest' %}
+{% include "partials/clock.html" %}
+
+<table class="result-table">
+  <thead>
+    <tr><th>Module</th><th>Need from</th><th>Mastery</th><th>Still leaky</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for t in snap.classified.rows %}
+      <tr>
+        <td><a href="/module/{{ t.id }}">{{ t.title }}</a><div class="note">{{ t.band }}</div></td>
+        <td>{{ t.need_for }}</td>
+        <td>
+          <div class="mini-bar"><i style="width: {{ t.mastery }}%"></i></div>
+          {{ t.mastery|int }}%
+        </td>
+        <td>{{ t.leak|int }}</td>
+        <td>{% if t.can_leave %}<span class="tag">safe to leave</span>{% endif %}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

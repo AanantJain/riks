@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Result{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">{% if kind == 'daily' %}Daily exam result{% else %}Drill result{% endif %}</p>
+    <h1>{{ (percent)|round(0)|int }}%</h1>
+    <p class="lede">
+      {% if kind == 'daily' %}
+        {{ awarded }} / {{ total }} on this paper. Accepted drills rewrite your skill model the same way a judge AC does.
+      {% else %}
+        {% if results[0].correct %}Accepted.{% else %}Not yet — read the note, then retry.{% endif %}
+      {% endif %}
+    </p>
+  </div>
+</section>
+
+<table class="result-table">
+  <thead>
+    <tr><th>Drill</th><th>Verdict</th><th>Note</th></tr>
+  </thead>
+  <tbody>
+    {% for r in results %}
+      <tr class="{% if r.correct %}ok{% else %}bad{% endif %}">
+        <td>
+          <a href="/practice/{{ r.question_id }}">{{ r.title }}</a>
+          <div class="note">{{ r.module_id }} · {{ r.type }}</div>
+        </td>
+        <td>{% if r.correct %}AC{% elif r.passed is defined %}{{ r.passed }}/{{ r.total_tests }}{% else %}WA{% endif %}</td>
+        <td class="mono">{{ r.feedback }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if q and q.source %}
+  <p class="card">If this was thin, open <a href="{{ q.source.url }}" target="_blank" rel="noopener">{{ q.source.title }}</a> then try again.</p>
+{% endif %}
+
+<p class="cta-row">
+  {% if kind == 'single' %}
+    <a class="btn solid" href="/practice/{{ next_id }}">Retry</a>
+    <a class="btn brass" href="/practice?module={{ results[0].module_id }}">More in this module</a>
+  {% else %}
+    <a class="btn solid" href="/practice">Practice list</a>
+    <a class="btn brass" href="/">Board</a>
+  {% endif %}
+  <a class="btn ghost" href="/today">Today</a>
+</p>
+{% endblock %}

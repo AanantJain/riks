@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Schedule{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Scheduler · {{ snap.classified.clock.headline if snap.classified.clock else 'remaining days' }} to {{ snap.state.contest_date }}</p>
+    <h1>The plan for the days left</h1>
+    <p class="lede">
+      Built from {{ snap.classified.goal.label }}, module weights, your last solves,
+      weekday hours, and <strong>{{ snap.classified.clock.mode_meta.label if snap.classified.clock else 'Steady' }}</strong> mode
+      ({{ snap.classified.clock.mode_meta.blurb if snap.classified.clock else '' }}).
+      A weekend contest is the periodic paper — it rewrites what follows.
+    </p>
+  </div>
+</section>
+
+{% set clock = snap.classified.clock %}{% set progress = snap.classified.progress %}{% set event = 'contest' %}
+{% include "partials/clock.html" %}
+
+<ol class="timeline">
+  {% for d in snap.schedule %}
+    <li class="{% if d.date == today() %}is-today{% endif %}">
+      <time datetime="{{ d.date }}">{{ d.date[5:] }} <small>{{ d.weekday[:3] }}</small></time>
+      <div>
+        <p class="mins">{{ d.minutes }} min · {{ d.note }}</p>
+        <ul>
+          {% for t in d.tasks %}
+            <li><b>{{ t.module }}</b> {{ t.name }}</li>
+          {% endfor %}
+        </ul>
+        {% if d.periodic %}
+          <p class="flag">{{ d.periodic.title }}</p>
+        {% endif %}
+      </div>
+    </li>
+  {% endfor %}
+</ol>
+{% endblock %}

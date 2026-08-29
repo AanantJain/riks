@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Periodic{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Periodic evaluation · live rounds</p>
+    <h1>The contest is the periodic paper</h1>
+    <p class="lede">
+      RIKS does not invent a private judge. Sit a public round, then upsolve.
+      That evidence rewrites the coming week the same way a board mock rewrites an exam schedule.
+    </p>
+  </div>
+</section>
+
+{% if rounds %}
+  <table class="result-table">
+    <thead><tr><th>When (UTC)</th><th>Round</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rounds %}
+        <tr>
+          <td class="mono">{{ r.start.strftime('%Y-%m-%d %H:%M') }}</td>
+          <td>{{ r.name }} <span class="tag">{{ r.phase }} · {{ r.duration_min }} min</span></td>
+          <td><a class="btn brass" href="{{ r.url }}" target="_blank" rel="noopener">Open</a></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>Could not reach the Codeforces API. Use <a href="https://codeforces.com/contests">codeforces.com/contests</a>.</p>
+{% endif %}
+<p class="muted">AtCoder ABCs are weekly: <a href="https://atcoder.jp/contests/" target="_blank" rel="noopener">atcoder.jp/contests</a>.</p>
+{% endblock %}

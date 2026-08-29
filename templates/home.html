@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Board{% endblock %}
+{% block content %}
+{% set c = snap.classified %}
+{% set s = snap.state %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">{{ c.goal.label }} · {{ s.contest_date }} target contest</p>
+    <h1>{{ (s.handle or 'Camper') }}’s board</h1>
+    <p class="lede">
+      Projected <strong>~{{ c.projected }}</strong> versus {{ c.target }}.
+      {% if c.gap > 0 %}{{ c.gap }} rating short.{% elif c.gap < 0 %}{{ -c.gap }} ahead.{% else %}On the line.{% endif %}
+      Schedule is in <strong>{{ c.clock.mode_meta.label if c.clock else 'Steady' }}</strong> mode for the time left.
+    </p>
+  </div>
+  <div class="stat-stack">
+    <div class="stat">
+      <b>{{ c.clock.remaining_days if c.clock else '—' }}</b>
+      <span>days to contest</span>
+    </div>
+    <div class="stat">
+      <b>{{ snap.today.tasks|length if snap.today else 0 }}</b>
+      <span>tasks today</span>
+    </div>
+    <div class="stat">
+      <b>{{ c.gap }}</b>
+      <span>rating vs target</span>
+    </div>
+  </div>
+</section>
+
+{% set clock = c.clock %}{% set progress = c.progress %}{% set event = 'contest' %}
+{% include "partials/clock.html" %}
+
+<section class="grid-3">
+  {% for r in c.rows[:3] %}
+    <article class="meter-card" style="--sub: {{ r.color }}">
+      <h3>{{ r.title }}</h3>
+      <p class="big">{{ r.mastery|int }}%</p>
+      <p class="muted">{{ r.band }} · leak ~{{ r.leak|int }} rating if left cold</p>
+      <div class="bar"><i style="width: {{ r.mastery }}%"></i></div>
+    </article>
+  {% endfor %}
+</section>
+
+<section class="split-panels">
+  <article>
+    <h2>Strong</h2>
+    <ul class="topic-list">
+      {% for t in c.strong[:5] %}
+        <li><span class="tag">{{ t.band }}</span> {{ t.title }} <em>{{ t.mastery|int }}%</em></li>
+      {% else %}
+        <li class="muted">Nothing is safely above the line yet — expected this early.</li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article>
+    <h2>Needs work</h2>
+    <ul class="topic-list warn">
+      {% for t in c.weak[:5] %}
+        <li><span class="tag">{{ t.band }}</span> {{ t.title }} <em>leak ~{{ t.leak|int }}</em></li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article>
+    <h2>Conscious skip</h2>
+    <p class="muted">If time is tight for this target ({{ c.clock.mode_meta.label if c.clock else 'now' }} mode), leaving these has a marginal effect on the rating.</p>
+    <ul class="topic-list mute">
+      {% for t in c.can_leave %}
+        <li><span class="tag">{{ t.band }}</span> {{ t.title }} <em>need {{ t.need_for }}+</em></li>
+      {% else %}
+        <li class="muted">At this goal, nothing is safely left behind.</li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+{% if c.adapted %}
+<section class="card">
+  <h2>Fine-tuned for {{ s.handle or 'you' }}</h2>
+  <p class="muted">Pace {{ (c.pace * 100)|int }}% of the default block. Next problems sit in your zone of proximal development.</p>
+  <ul class="plain">
+    {% for line in c.adapted %}
+      <li>{{ line }}</li>
+    {% endfor %}
+  </ul>
+  {% if c.locked %}
+    <p class="flag">Held until the foundation is yours: {{ c.locked|map(attribute='title')|join(', ') }}.</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if snap.today %}
+<section class="card tonight">
+  <h2>Minimum set before sleep</h2>
+  <ol>
+    {% for t in snap.today.tasks %}
+      <li>
+        <strong>{{ t.minutes }} min</strong> —
+        <a href="{{ t.url }}" target="_blank" rel="noopener">{{ t.name }}</a>
+        ({{ t.oj }}). {{ t.reason }}
+      </li>
+    {% endfor %}
+  </ol>
+  <a class="btn solid" href="/practice/daily">Daily exam in RIKS</a>
+  <a class="btn solid" href="/today">Open today’s bot</a>
+  <a class="btn brass" href="/schedule">See the remaining days</a>
+</section>
+{% endif %}
+
+<section class="card">
+  <h2>Tell RIKS the target</h2>
+  <p class="muted">Handle, rating goal, hours, and which topics already feel strong or weak. The schedule changes with this.</p>
+  <form class="form" method="post" action="/profile">
+    <div class="row">
+      <label>Handle <input name="handle" value="{{ s.handle }}" placeholder="Aanant" /></label>
+      <label>Target contest date <input type="date" name="contest_date" value="{{ s.contest_date }}" /></label>
+    </div>
+    <div class="row">
+      <label>Goal
+        <select name="goal">
+          {% for key, g in goals.items() %}
+            <option value="{{ key }}" {% if s.goal == key %}selected{% endif %}>{{ g.label }} — {{ g.blurb }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Hours / weekday
+        <select name="hours_per_day">
+          {% for h in [1,2,3,4] %}
+            <option value="{{ h }}" {% if s.hours_per_day|int == h %}selected{% endif %}>{{ h }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    <fieldset>
+      <legend>Already strong</legend>
+      <div class="chips">
+        {% for m in modules %}
+          <label class="chip"><input type="checkbox" name="strong" value="{{ m.id }}" {% if m.id in s.strong_modules %}checked{% endif %} /> {{ m.title }}</label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Needs work</legend>
+      <div class="chips">
+        {% for m in modules %}
+          <label class="chip"><input type="checkbox" name="weak" value="{{ m.id }}" {% if m.id in s.weak_modules %}checked{% endif %} /> {{ m.title }}</label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <button class="btn solid" type="submit">Rebuild the journey</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ mod.title }}{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Module {{ '%02d' % mod.order }} · {{ mod.band }}{% if mod.row %} · mastery {{ mod.row.mastery|int }}%{% endif %}</p>
+    <h1>{{ mod.title }}</h1>
+    <p class="lede">{{ mod.blurb }}</p>
+  </div>
+</section>
+
+<h2>Read / watch (free)</h2>
+<ul class="theory">
+  {% for t in mod.theory %}
+    <li><a href="{{ t.url }}" target="_blank" rel="noopener">{{ t.title }}</a> <span>{{ t.source }}</span></li>
+  {% endfor %}
+</ul>
+
+<h2>Try here first — we grade it</h2>
+<p class="muted">Original drills for this module (Handbook, USACO Guide, CP-Algorithms skills). Python is judged on hidden tests.</p>
+<ul class="topic-list">
+  {% for d in drills %}
+    <li>
+      <span class="tag">{{ d.type }}</span>
+      <a href="/practice/{{ d.id }}">{{ d.title }}</a>
+      <em>{% if d.status == 'solved' %}accepted{% else %}~{{ d.rating }}{% endif %}</em>
+    </li>
+  {% else %}
+    <li class="muted">No in-app drills for this module yet.</li>
+  {% endfor %}
+</ul>
+
+<h2>Then sit the public judge</h2>
+<p class="muted">{{ mod.solved }}/{{ mod.total }} solved. Marking solved here rewrites the schedule.</p>
+<table class="probs">
+  <thead><tr><th>#</th><th>Problem</th><th>Judge</th><th>~CF</th><th></th></tr></thead>
+  <tbody>
+    {% for p in mod.problems %}
+      <tr class="{{ p.status }}">
+        <td>{{ loop.index }}</td>
+        <td>
+          <a href="{{ p.url }}" target="_blank" rel="noopener">{{ p.name }}</a>
+          {% if p.note %}<div class="note">{{ p.note }}</div>{% endif %}
+        </td>
+        <td>{{ p.oj }}</td>
+        <td>{{ p.rating }}</td>
+        <td>
+          <form class="inline" method="post" action="/mark/{{ p.id }}">
+            <input type="hidden" name="next" value="/module/{{ mod.id }}" />
+            {% if p.status != 'solved' %}
+              <button name="status" value="solved">Solved</button>
+            {% endif %}
+            {% if p.status == 'open' %}
+              <button class="ghost" name="status" value="skipped">Later</button>
+            {% endif %}
+            {% if p.status != 'open' %}
+              <button class="ghost" name="status" value="clear">Reset</button>
+            {% endif %}
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

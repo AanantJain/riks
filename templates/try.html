@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ q.title }}{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">{{ q.module_id }} · {{ q.type }} · ~{{ q.rating }}{% if status == 'solved' %} · already accepted{% endif %}</p>
+    <h1>{{ q.title }}</h1>
+    {% if q.source %}
+      <p class="lede">Skill from <a href="{{ q.source.url }}" target="_blank" rel="noopener">{{ q.source.title }}</a>. Read that if you miss.</p>
+    {% endif %}
+  </div>
+</section>
+
+<form class="exam" method="post" action="/practice/{{ q.id }}">
+  <article class="q card">
+    <p class="qtext">{{ q.text | replace('\n', '<br>') | safe }}</p>
+    {% if q.sample %}
+      <div class="io">
+        <div><h3>Sample input</h3><pre>{{ q.sample.stdin }}</pre></div>
+        <div><h3>Sample output</h3><pre>{{ q.sample.stdout }}</pre></div>
+      </div>
+    {% endif %}
+    {% if q.type == 'mcq' %}
+      <div class="options">
+        {% for opt in q.options %}
+          <label><input type="radio" name="answer" value="{{ opt }}" /> {{ opt }}</label>
+        {% endfor %}
+      </div>
+    {% elif q.type == 'code' %}
+      <label class="muted">Python 3 — stdin / stdout. No files, no imports of os.</label>
+      <textarea class="code" name="code" rows="14" spellcheck="false">{{ q.starter }}</textarea>
+    {% else %}
+      <textarea name="answer" rows="3" placeholder="Your answer"></textarea>
+    {% endif %}
+  </article>
+  <button class="btn solid" type="submit">Submit for evaluation</button>
+  <a class="btn ghost" href="/practice?module={{ q.module_id }}">Back to list</a>
+</form>
+{% endblock %}

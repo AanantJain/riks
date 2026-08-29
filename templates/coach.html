@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Coach{% endblock %}
+{% block content %}
+{% set c = snap.classified %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Coach desk</p>
+    <h1>Where {{ snap.state.handle or 'the camper' }} stands — and how you can actually help</h1>
+    <p class="lede">{{ snap.coach.standing }}</p>
+  </div>
+</section>
+
+{% set clock = c.clock %}{% set progress = c.progress %}{% set event = 'contest' %}
+{% include "partials/clock.html" %}
+
+<section class="grid-3">
+  {% for r in c.weak[:3] %}
+    <article class="meter-card" style="--sub: {{ r.color }}">
+      <h3>{{ r.title }}</h3>
+      <p class="big">{{ r.mastery|int }}%</p>
+      <p class="muted">leak ~{{ r.leak|int }} rating</p>
+    </article>
+  {% endfor %}
+</section>
+
+<section class="split-panels two">
+  <article class="card">
+    <h2>You can</h2>
+    <ul class="plain">
+      {% for h in snap.coach.helps %}
+        <li>{{ h }}</li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article class="card caution">
+    <h2>Please do not</h2>
+    <ul class="plain">
+      {% for d in snap.coach.donts %}
+        <li>{{ d }}</li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+<section class="card">
+  <h2>Today’s list (so you are not guessing)</h2>
+  {% if snap.today %}
+    <ol>
+      {% for t in snap.today.tasks %}
+        <li><strong>{{ t.name }}</strong> — {{ t.minutes }} min. {{ t.reason }}</li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+</section>
+{% endblock %}

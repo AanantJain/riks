@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Daily exam{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Daily exam · in-app judge</p>
+    <h1>{{ title }}</h1>
+    <p class="lede">
+      Five drills from today’s modules, aimed at your zone of proximal development.
+      Code questions run against hidden tests. A miss points you at the free article, not a paid sheet.
+    </p>
+  </div>
+</section>
+
+<form class="exam" method="post" action="{{ action }}">
+  <input type="hidden" name="qids" value="{{ qids | join(',') }}" />
+  {% for q in questions %}
+    <article class="q card">
+      <header>
+        <span class="qno">Q{{ loop.index }} · {{ q.title }}</span>
+        <span class="meta">{{ q.module_id }} · {{ q.type }} · ~{{ q.rating }}
+          {% if q.source %} · {{ q.source.title }}{% endif %}
+        </span>
+      </header>
+      <p class="qtext">{{ q.text | replace('\n', '<br>') | safe }}</p>
+      {% if q.sample %}
+        <div class="io">
+          <div><h3>Sample input</h3><pre>{{ q.sample.stdin }}</pre></div>
+          <div><h3>Sample output</h3><pre>{{ q.sample.stdout }}</pre></div>
+        </div>
+      {% endif %}
+      {% if q.type == 'mcq' %}
+        <div class="options">
+          {% for opt in q.options %}
+            <label><input type="radio" name="{{ q.id }}" value="{{ opt }}" /> {{ opt }}</label>
+          {% endfor %}
+        </div>
+      {% elif q.type == 'code' %}
+        <textarea class="code" name="{{ q.id }}_code" rows="12" spellcheck="false">{{ q.starter }}</textarea>
+      {% else %}
+        <textarea name="{{ q.id }}" rows="2" placeholder="Your answer"></textarea>
+      {% endif %}
+    </article>
+  {% endfor %}
+  <button class="btn solid" type="submit">Submit for evaluation</button>
+</form>
+{% endblock %}

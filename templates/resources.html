@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Library{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Resources</p>
+    <h1>The free library</h1>
+    <p class="lede">If a site asks for money, it is not on this list. RIKS points you at the article for the topic that is leaking rating — not at a pile of PDFs.</p>
+  </div>
+</section>
+{% for shelf in shelves %}
+  <h2>{{ shelf.title }}</h2>
+  <ul class="shelf">
+    {% for it in shelf.links %}
+      <li>
+        <a href="{{ it.url }}" target="_blank" rel="noopener">{{ it.name }}</a>
+        <p class="muted">{{ it.why }}</p>
+      </li>
+    {% endfor %}
+  </ul>
+{% endfor %}
+{% endblock %}

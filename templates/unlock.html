@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RIKS — family gate</title>
+  <link rel="stylesheet" href="/static/css/app.css?v=mobile" />
+</head>
+<body>
+  <main id="main" class="narrow">
+    <section class="mast">
+      <div>
+        <p class="eyebrow">Family only</p>
+        <h1>This copy is for Aanant</h1>
+        <p class="lede">Ask your parent for the password. It keeps strangers off his progress.</p>
+      </div>
+    </section>
+    <form class="card form" method="post" action="/unlock">
+      {% if wrong %}<p class="flag">That password did not match.</p>{% endif %}
+      <label>Password
+        <input type="password" name="password" autocomplete="current-password" autofocus />
+      </label>
+      <button class="btn solid" type="submit">Open RIKS</button>
+    </form>
+  </main>
+</body>
+</html>
