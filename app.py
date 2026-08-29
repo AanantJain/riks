@@ -45,9 +45,14 @@ def healthz():
     return {"ok": True}
 
 
+def render(request: Request, name: str, **ctx):
+    ctx["snap"] = store.snapshot()
+    return templates.TemplateResponse(request, name, ctx)
+
+
 @app.get("/unlock", response_class=HTMLResponse)
 def unlock_form(request: Request, wrong: int = 0):
-    return templates.TemplateResponse("unlock.html", {"request": request, "wrong": bool(wrong)})
+    return templates.TemplateResponse(request, "unlock.html", {"wrong": bool(wrong)})
 
 
 @app.post("/unlock")
@@ -57,12 +62,6 @@ def unlock_submit(password: str = Form("")):
         resp.set_cookie("riks_family", FAMILY_COOKIE, httponly=True, samesite="lax", max_age=60 * 60 * 24 * 120)
         return resp
     return RedirectResponse("/unlock?wrong=1", status_code=303)
-
-
-def render(request: Request, name: str, **ctx):
-    ctx["request"] = request
-    ctx["snap"] = store.snapshot()
-    return templates.TemplateResponse(name, ctx)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -179,9 +178,9 @@ async def practice_daily_submit(request: Request):
     percent = round(100 * awarded / total, 1)
     snap = store.snapshot()
     return templates.TemplateResponse(
+        request,
         "try_result.html",
         {
-            "request": request,
             "snap": snap,
             "results": results,
             "percent": percent,
@@ -212,9 +211,9 @@ async def practice_one_submit(request: Request, qid: str):
     store.record_drills([result])
     snap = store.snapshot()
     return templates.TemplateResponse(
+        request,
         "try_result.html",
         {
-            "request": request,
             "snap": snap,
             "results": [result],
             "percent": round(100 * result["score"], 1),
