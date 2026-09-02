@@ -1,0 +1,50 @@
+{% extends "exam_base.html" %}
+{% block title %}8-week plan{% endblock %}
+{% block content %}
+{% set c = snap.classified %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">INI-CET - 8-week subject block</p>
+    <h1>{{ snap.student.name }}'s timetable to {{ snap.student.exam_date }}</h1>
+    <p class="lede">
+      You are in <strong>Week {{ c.study_week }}</strong> of 8.
+      RIKS prioritises this week's subjects in Today and the daily MCQ set.
+      Each Sunday ends with a subject mock; Week 8 is full 200-Q / 180 min pattern.
+    </p>
+  </div>
+  <div class="stat-stack">
+    <div class="stat">
+      <b>{{ c.study_week }}</b>
+      <span>current week</span>
+    </div>
+    <div class="stat">
+      <b>{{ c.clock.remaining_days if c.clock else '-' }}</b>
+      <span>days left</span>
+    </div>
+    <div class="stat">
+      <b>{{ targets[snap.student.target].label }}</b>
+      <span>target band</span>
+    </div>
+  </div>
+</section>
+
+<ol class="timeline week-plan">
+  {% for w in c.week_plan %}
+    <li class="{% if w.week == c.study_week %}is-today{% elif w.week < c.study_week %}is-done{% endif %}">
+      <time>Week {{ w.week }}</time>
+      <div>
+        <h3>{{ w.title }}</h3>
+        <p class="muted">{{ w.focus }}</p>
+        <p class="flag">{{ w.mock }}</p>
+        <ul class="plain">
+          {% for sid in w.subjects %}
+            <li>{{ subject_by_id(sid).name }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </li>
+  {% endfor %}
+</ol>
+
+<a class="btn solid" href="/student/today">Open today's list</a>
+{% endblock %}

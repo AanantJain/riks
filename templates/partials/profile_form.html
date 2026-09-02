@@ -1,0 +1,58 @@
+{% set s = snap.student if snap is defined else student %}
+<section class="card">
+  <h2>Tell RIKS the plan</h2>
+  <p class="muted">
+    {% if s.track == 'inicet' %}
+      INI-CET date, target band, hospital duty, and which subjects feel strong or weak. Rebuild when you change the exam date or want a clean start.
+    {% else %}
+      Exam date, target, coaching load, and which subjects feel strong or weak. The schedule changes with this.
+    {% endif %}
+  </p>
+  <form class="form" method="post" action="/student/profile">
+    <div class="row">
+      <label>Name <input name="name" value="{{ s.name }}" required /></label>
+      <label>Exam date <input type="date" name="exam_date" value="{{ s.exam_date }}" required /></label>
+    </div>
+    <div class="row">
+      <label>Parent / coach name <input name="parent_name" value="{{ s.parent_name }}" /></label>
+      <label>Target
+        <select name="target">
+          {% for key, t in targets.items() %}
+            <option value="{{ key }}" {% if s.target == key %}selected{% endif %}>{{ t.label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    <fieldset>
+      <legend>How you prepare</legend>
+      {% if s.track == 'inicet' %}
+        <label class="check"><input type="checkbox" name="weekend_institute" {% if s.coaching.weekend_institute %}checked{% endif %} /> Weekend test series (Marrow / online mocks)</label>
+        <label>Series name <input name="weekend_institute_name" value="{{ s.coaching.weekend_institute_name or '' }}" placeholder="Marrow / NEETPGAI" /></label>
+        <label class="check"><input type="checkbox" name="hospital_duty" {% if s.coaching.hospital_duty %}checked{% endif %} /> Hospital duty on weekdays (shorter home blocks)</label>
+      {% else %}
+        <label class="check"><input type="checkbox" name="weekend_institute" {% if s.coaching.weekend_institute %}checked{% endif %} /> Weekend institute (e.g. VMC)</label>
+        <label>Institute name <input name="weekend_institute_name" value="{{ s.coaching.weekend_institute_name or '' }}" /></label>
+        <label class="check"><input type="checkbox" name="private_maths" {% if s.coaching.private_maths %}checked{% endif %} /> Private coaching for Maths</label>
+        <label class="check"><input type="checkbox" name="school_rest" {% if s.coaching.school_rest %}checked{% endif %} /> School for the remaining subjects</label>
+      {% endif %}
+    </fieldset>
+    <fieldset>
+      <legend>Already strong</legend>
+      <div class="chips">
+        {% for sub in subjects %}
+          <label class="chip"><input type="checkbox" name="strong" value="{{ sub.id }}" {% if sub.id in s.strong_subjects %}checked{% endif %} /> {{ sub.name }}</label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Needs work</legend>
+      <div class="chips">
+        {% for sub in subjects %}
+          <label class="chip"><input type="checkbox" name="weak" value="{{ sub.id }}" {% if sub.id in s.weak_subjects %}checked{% endif %} /> {{ sub.name }}</label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <label class="check caution"><input type="checkbox" name="reset" value="1" /> Start from scratch (clear all papers and daily logs)</label>
+    <button class="btn solid" type="submit">Rebuild my schedule</button>
+  </form>
+</section>

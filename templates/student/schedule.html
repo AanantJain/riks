@@ -1,0 +1,41 @@
+{% extends "exam_base.html" %}
+{% block title %}Schedule{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Scheduler · {{ snap.classified.clock.headline if snap.classified.clock else 'remaining days' }} to {{ snap.student.exam_date }}</p>
+    <h1>The plan for the days left</h1>
+    <p class="lede">
+      Built from {{ targets[snap.student.target].label }}, {% if snap.student.track == 'inicet' %}INI-CET recall weights{% else %}NCERT weights{% endif %}, your last evaluations,
+      coaching load, and <strong>{{ snap.classified.clock.mode_meta.label if snap.classified.clock else 'Steady' }}</strong> mode
+      ({{ snap.classified.clock.mode_meta.blurb if snap.classified.clock else '' }}).
+      A periodic paper every week rewrites what follows.
+    </p>
+  </div>
+</section>
+
+{% set clock = snap.classified.clock %}{% set progress = snap.classified.progress %}{% set event = 'examination' %}
+{% include "partials/clock.html" %}
+
+<ol class="timeline">
+  {% for d in snap.student.schedule %}
+    <li class="{% if d.date == today() %}is-today{% endif %}">
+      <time datetime="{{ d.date }}">{{ d.date[5:] }} <small>{{ d.weekday[:3] }}</small></time>
+      <div>
+        <p class="mins">{{ d.minutes }} min · {{ d.note }}</p>
+        <ul>
+          {% for t in d.tasks %}
+            <li><b>{{ subject_by_id(t.subject_id).name }}</b> {{ t.chapter }}</li>
+          {% endfor %}
+        </ul>
+        {% if d.periodic %}
+          <p class="flag">Periodic: {{ d.periodic.title or d.periodic.subject_name }}</p>
+        {% endif %}
+        {% if d.week_title %}
+          <p class="muted"><small>Week {{ d.study_week }}: {{ d.week_title }}</small></p>
+        {% endif %}
+      </div>
+    </li>
+  {% endfor %}
+</ol>
+{% endblock %}

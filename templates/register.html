@@ -1,0 +1,88 @@
+{% extends "exam_base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+{% set track_id = register_track|default('cbse') %}
+{% set is_inicet = track_id == 'inicet' %}
+<section class="narrow">
+  <p class="eyebrow">Registration{% if is_inicet %} - INI-CET{% endif %}</p>
+  <h1>Tell RIKS the exam, the target, and how you actually study.</h1>
+  <p class="lede">The schedule is personal. Coaching days, weak subjects, and remaining time all change today's list.</p>
+
+  <form class="card form" method="post" action="/register">
+    <input type="hidden" name="track" value="{{ track_id }}" />
+    <div class="row">
+      <label>Name
+        <input name="name" required placeholder="{% if is_inicet %}Nikita{% else %}Aanant{% endif %}" />
+      </label>
+      <label>Parent / coach name
+        <input name="parent_name" placeholder="Father" />
+      </label>
+    </div>
+    <div class="row">
+      {% if not is_inicet %}
+      <label>Class
+        <select name="class_level">
+          <option value="10" selected>Class 10</option>
+          <option value="12">Class 12</option>
+        </select>
+      </label>
+      <label>Board
+        <select name="board">
+          <option>CBSE</option>
+          <option>ICSE</option>
+          <option>State</option>
+        </select>
+      </label>
+      {% endif %}
+      <label>{% if is_inicet %}INI-CET session date{% else %}Exam date{% endif %}
+        <input type="date" name="exam_date" value="{{ default_exam }}" required />
+      </label>
+    </div>
+
+    <fieldset>
+      <legend>Target</legend>
+      <div class="chips">
+        {% for key, t in targets.items() %}
+          <label class="chip">
+            <input type="radio" name="target" value="{{ key }}" {% if (is_inicet and key == 'aiims_band') or (not is_inicet and key == 'distinction') %}checked{% endif %} />
+            <span>{{ t.label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>How you prepare</legend>
+      {% if is_inicet %}
+        <label class="check"><input type="checkbox" name="weekend_institute" checked /> Weekend test series</label>
+        <label>Series name <input name="weekend_institute_name" value="Marrow / NEETPGAI" /></label>
+        <label class="check"><input type="checkbox" name="hospital_duty" checked /> Hospital duty on weekdays</label>
+      {% else %}
+        <label class="check"><input type="checkbox" name="weekend_institute" checked /> Weekend institute (e.g. VMC)</label>
+        <label>Institute name <input name="weekend_institute_name" value="VMC" /></label>
+        <label class="check"><input type="checkbox" name="private_maths" checked /> Private coaching for Maths</label>
+        <label class="check"><input type="checkbox" name="school_rest" checked /> School for the remaining subjects</label>
+      {% endif %}
+    </fieldset>
+
+    <fieldset>
+      <legend>Where you already feel strong</legend>
+      <div class="chips">
+        {% for s in subjects %}
+          <label class="chip"><input type="checkbox" name="strong" value="{{ s.id }}" {% if (is_inicet and s.id in ['anatomy','physiology']) or (not is_inicet and s.id == 'science') %}checked{% endif %} /> {{ s.name }}</label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Where you need work</legend>
+      <div class="chips">
+        {% for s in subjects %}
+          <label class="chip"><input type="checkbox" name="weak" value="{{ s.id }}" {% if (is_inicet and s.id in ['pharma','surgery']) or (not is_inicet and s.id == 'maths') %}checked{% endif %} /> {{ s.name }}</label>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <button class="btn solid" type="submit">Build my schedule</button>
+  </form>
+</section>
+{% endblock %}

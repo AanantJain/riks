@@ -1,0 +1,128 @@
+{% extends "exam_base.html" %}
+{% block title %}{% if snap.student.track == 'inicet' %}INI-CET{% else %}Board{% endif %} - {{ snap.student.name }}{% endblock %}
+{% block content %}
+{% set s = snap.student %}
+{% set c = snap.classified %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">{{ s.board }} {{ s.class_level }} · {{ targets[s.target].label }}{% if c.study_week %} · Week {{ c.study_week }}/8{% endif %}</p>
+    <h1>{{ s.name }}’s {% if s.track == 'inicet' %}INI-CET desk{% else %}board{% endif %}</h1>
+    <p class="lede">
+      {{ c.clock.until if c.clock else s.exam_date }} is the exam.
+      Projected <strong>{{ c.overall_percent }}{% if s.track == 'inicet' %} / 200 Q-equivalent{% else %}%{% endif %}</strong>
+      versus a {{ c.target_percent }}{% if s.track != 'inicet' %}%{% endif %} target
+      ({% if c.gap > 0 %}{{ c.gap }} points short{% elif c.gap < 0 %}{{ -c.gap }} points ahead{% else %}on target{% endif %}).
+      Schedule is in <strong>{{ c.clock.mode_meta.label if c.clock else 'Steady' }}</strong> mode for the time left.
+    </p>
+  </div>
+  <div class="stat-stack">
+    <div class="stat">
+      <b>{{ c.clock.remaining_days if c.clock else '—' }}</b>
+      <span>days to exam</span>
+    </div>
+    <div class="stat">
+      <b>{{ snap.today.tasks|length if snap.today else 0 }}</b>
+      <span>tasks today</span>
+    </div>
+    <div class="stat">
+      <b>{{ c.gap }}</b>
+      <span>pp vs target</span>
+    </div>
+  </div>
+</section>
+
+{% set clock = c.clock %}{% set progress = c.progress %}{% set event = 'examination' %}
+{% include "partials/clock.html" %}
+
+<section class="grid-3">
+  {% for sid, p in c.projected.items() %}
+    <article class="meter-card" style="--sub: {{ subject_by_id(sid).color }}">
+      <h3>{{ subject_by_id(sid).name }}</h3>
+      <p class="big">{{ p.percent }}%</p>
+      <p class="muted">{% if s.track == 'inicet' %}Expected Qs {{ p.theory }}/{{ p.max_marks }}{% else %}Theory {{ p.theory }}/80 · Internal {{ p.internal }}/20{% endif %}</p>
+      <div class="bar"><i style="width: {{ p.percent }}%"></i></div>
+    </article>
+  {% endfor %}
+</section>
+
+<section class="split-panels">
+  <article>
+    <h2>Strong</h2>
+    <ul class="topic-list">
+      {% for t in c.strong[:5] %}
+        <li>
+          <span class="tag">{{ subject_by_id(t.subject_id).name }}</span>
+          {{ t.chapter }}
+          <em>{{ t.mastery|int }}%</em>
+        </li>
+      {% else %}
+        <li class="muted">Nothing is safely above the line yet — expected this early.</li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article>
+    <h2>Needs work</h2>
+    <ul class="topic-list warn">
+      {% for t in c.weak[:5] %}
+        <li>
+          <span class="tag">{{ subject_by_id(t.subject_id).name }}</span>
+          {{ t.chapter }}
+          <em>leak ~{{ t.leak|round(1) }} marks</em>
+        </li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article>
+    <h2>Conscious skip</h2>
+    <p class="muted">If time is tight ({{ c.clock.mode_meta.label if c.clock else 'now' }} mode), leaving these has a marginal effect on the result.</p>
+    <ul class="topic-list mute">
+      {% for t in c.can_leave %}
+        <li>
+          <span class="tag">{{ subject_by_id(t.subject_id).name }}</span>
+          {{ t.chapter }}
+          <em>{{ t.marks_weight }} marks · {{ (t.probability * 100)|int }}% likely</em>
+        </li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+{% if c.adapted %}
+<section class="card">
+  <h2>Fine-tuned for {{ s.name }}</h2>
+  <p class="muted">Pace {{ (c.pace * 100)|int }}% of the default block. Questions sit in your zone of proximal development, not a class average.</p>
+  <ul class="plain">
+    {% for line in c.adapted %}
+      <li>{{ line }}</li>
+    {% endfor %}
+  </ul>
+  {% if c.locked %}
+    <p class="flag">Held until the foundation is yours: {{ c.locked|map(attribute='chapter')|join(', ') }}.</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if s.track == 'inicet' and c.week_plan %}
+<section class="card">
+  <h2>8-week INI-CET block — Week {{ c.study_week }}</h2>
+  {% set w = c.week_plan[c.study_week - 1] %}
+  <p><strong>{{ w.title }}</strong> — {{ w.focus }}</p>
+  <p class="flag">This week’s mock: {{ w.mock }}</p>
+  <a class="btn brass" href="/student/week-plan">See full 8-week timetable</a>
+</section>
+{% endif %}
+
+{% if snap.today %}
+<section class="card tonight">
+  <h2>Minimum set before sleep</h2>
+  <ol>
+    {% for t in snap.today.tasks %}
+      <li><strong>{{ t.minutes }} min</strong> — {{ t.chapter }}. {{ t.reason }}</li>
+    {% endfor %}
+  </ol>
+  <a class="btn solid" href="/student/today">Open today’s bot</a>
+  <a class="btn brass" href="/student/daily-exam">Start daily exam</a>
+</section>
+{% endif %}
+{% include "partials/profile_form.html" %}
+{% endblock %}

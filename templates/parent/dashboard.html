@@ -1,0 +1,99 @@
+{% extends "exam_base.html" %}
+{% block title %}Coach - {{ snap.student.name }}{% endblock %}
+{% block content %}
+{% set s = snap.student %}
+{% set is_pg = s.track == 'inicet' %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Coach desk - {{ s.parent_name }}</p>
+    <h1>Where {{ s.name }} stands - and how you can actually help</h1>
+    <p class="lede">{{ brief.standing }}</p>
+  </div>
+</section>
+
+{% set clock = snap.classified.clock %}{% set progress = snap.classified.progress %}{% set event = 'INI-CET' if is_pg else 'examination' %}
+{% include "partials/clock.html" %}
+
+<section class="grid-3">
+  {% for sid, p in snap.classified.projected.items() %}
+    <article class="meter-card" style="--sub: {{ subject_by_id(sid).color }}">
+      <h3>{{ subject_by_id(sid).name }}</h3>
+      <p class="big">{{ p.percent }}%</p>
+      <p class="muted">{% if is_pg %}Expected Qs {{ p.theory }}/{{ p.max_marks }}{% else %}{{ p.theory }}/80 theory{% endif %}</p>
+    </article>
+  {% endfor %}
+</section>
+
+<section class="split-panels two">
+  <article class="card">
+    <h2>You can</h2>
+    <ul class="plain">
+      {% for h in brief.helps %}
+        <li>{{ h }}</li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article class="card caution">
+    <h2>Please do not</h2>
+    <ul class="plain">
+      {% for d in brief.donts %}
+        <li>{{ d }}</li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+<section class="card">
+  <h2>Today's list (so you are not guessing)</h2>
+  {% if snap.today %}
+    <ol>
+      {% for t in snap.today.tasks %}
+        <li><strong>{{ t.chapter }}</strong> - {{ t.minutes }} min. {{ t.reason }}</li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <p>No plan loaded.</p>
+  {% endif %}
+</section>
+
+{% if is_pg and snap.classified.week_plan %}
+<section class="card">
+  <h2>8-week block - Week {{ snap.classified.study_week }}</h2>
+  {% set w = snap.classified.week_plan[snap.classified.study_week - 1] %}
+  <p><strong>{{ w.title }}</strong> - {{ w.focus }}</p>
+  <p class="flag">This week's mock: {{ w.mock }}</p>
+</section>
+{% endif %}
+
+<section class="split-panels two">
+  <article>
+    <h2>Topics still leaking marks</h2>
+    <ul class="topic-list warn">
+      {% for t in snap.classified.weak %}
+        <li>
+          <span class="tag">{{ subject_by_id(t.subject_id).name }}</span>
+          {{ t.chapter }}
+          <em>~{{ t.leak|round(1) }} marks</em>
+        </li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article>
+    <h2>Leave / duty gap</h2>
+    {% if snap.missed %}
+      <ul class="plain">
+        {% for m in snap.missed %}
+          <li>{{ m.when }} - missed {{ m.place }}{% if m.note %}: {{ m.note }}{% endif %}. Ask {{ s.name }} to open Today; RIKS schedules catch-up on high-yield topics.</li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No leave logged. If a {% if is_pg %}duty or test-series{% else %}school or VMC{% endif %} day was missed, have {{ s.name }} tap Log leave on Today.</p>
+    {% endif %}
+    {% if snap.yesterday and not snap.yesterday.completed %}
+      <p class="flag">Yesterday's minimum set was not finished (~{{ snap.yesterday.impact_marks }} marks exposed). Ask why before you raise your voice.</p>
+    {% endif %}
+  </article>
+</section>
+
+{% include "partials/profile_form.html" %}
+{% endblock %}

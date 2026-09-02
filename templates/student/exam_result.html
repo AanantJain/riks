@@ -1,0 +1,36 @@
+{% extends "exam_base.html" %}
+{% block title %}Result{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">{{ 'Daily exam' if kind == 'daily' else 'Periodic evaluation' }} result</p>
+    <h1>{{ result.awarded }} / {{ result.total }} · {{ result.percent }}%</h1>
+    <p class="lede">
+      Topic-level feedback is what changes the schedule — not the headline score.
+      The coming days have been rewritten from this paper.
+    </p>
+  </div>
+</section>
+
+<table class="result-table">
+  <thead>
+    <tr><th>Topic</th><th>Your answer</th><th>Awarded</th><th>Note</th></tr>
+  </thead>
+  <tbody>
+    {% for i in result.items %}
+      <tr class="{% if i.correct %}ok{% else %}bad{% endif %}">
+        <td>{{ topic_by_id(i.topic_id).chapter }}</td>
+        <td>{{ i.given or '—' }}</td>
+        <td>{{ i.marks_awarded }}/{{ i.marks }}</td>
+        <td>{{ i.feedback }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p class="cta-row">
+  <a class="btn solid" href="/student">Back to board</a>
+  <a class="btn brass" href="/student/schedule">See updated schedule</a>
+  <a class="btn ghost" href="/parent">Show coach</a>
+</p>
+{% endblock %}

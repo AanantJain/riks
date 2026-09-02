@@ -1,0 +1,44 @@
+{% extends "exam_base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">{{ 'Daily exam' if kind == 'daily' else 'Periodic evaluation' }}</p>
+    <h1>{{ title }}</h1>
+    <p class="lede">
+      Questions are selected by topic weight, PYQ likelihood, and where your mastery is thin.
+      Short answers are keyword-graded; MCQs are exact.
+    </p>
+  </div>
+</section>
+
+{% if kind == 'periodic' %}
+  <nav class="chips wrap">
+    {% for s in subjects %}
+      <a class="chip {% if s.id == subject %}on{% endif %}" href="/student/periodic-exam?subject={{ s.id }}">{{ s.name }}</a>
+    {% endfor %}
+  </nav>
+{% endif %}
+
+<form class="exam" method="post" action="{{ action }}" id="exam-form">
+  {% for q in questions %}
+    <article class="q card" data-marks="{{ q.marks }}">
+      <header>
+        <span class="qno">Q{{ loop.index }} · {{ q.marks }} marks</span>
+        <span class="meta">{{ topic_by_id(q.topic_id).chapter }} · {{ q.source|upper }}{% if q.year %} {{ q.year }}{% endif %} · difficulty {{ q.difficulty }}/3 · p={{ (q.probability * 100)|int }}%</span>
+      </header>
+      <p class="qtext">{{ q.text }}</p>
+      {% if q.type == 'mcq' %}
+        <div class="options">
+          {% for opt in q.options %}
+            <label><input type="radio" name="{{ q.id }}" value="{{ opt }}" /> {{ opt }}</label>
+          {% endfor %}
+        </div>
+      {% else %}
+        <textarea name="{{ q.id }}" rows="3" placeholder="Write the answer, not just the final number if you can."></textarea>
+      {% endif %}
+    </article>
+  {% endfor %}
+  <button class="btn solid" type="submit">Submit for evaluation</button>
+</form>
+{% endblock %}

@@ -17,12 +17,16 @@ from camp.drills import DRILLS, drill_by_id, drills_for_module, pick_drills, pub
 from camp.govern import GOALS
 from camp.judge import grade
 from camp.store import store
+from exam import bind as bind_exam
+from exam import router as exam_router
 
 ROOT = Path(__file__).resolve().parent
 app = FastAPI(title="RIKS Contest")
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 templates = Jinja2Templates(directory=str(ROOT / "templates"))
 templates.env.globals.update(goals=GOALS, modules=MODULES, today=lambda: __import__("datetime").date.today().isoformat())
+bind_exam(templates)
+app.include_router(exam_router)
 
 FAMILY_PASSWORD = os.environ.get("RIKS_PASSWORD", "").strip()
 FAMILY_COOKIE = hmac.new(b"riks-contest", FAMILY_PASSWORD.encode(), "sha256").hexdigest()[:32] if FAMILY_PASSWORD else ""
@@ -65,8 +69,18 @@ def unlock_submit(password: str = Form("")):
 
 
 @app.get("/", response_class=HTMLResponse)
+def choose(request: Request):
+    return templates.TemplateResponse(request, "choose.html", {})
+
+
+@app.get("/camp", response_class=HTMLResponse)
 def home(request: Request):
     return render(request, "home.html")
+
+
+@app.get("/board", response_class=HTMLResponse)
+def board_alias(request: Request):
+    return RedirectResponse("/camp", status_code=303)
 
 
 @app.get("/today", response_class=HTMLResponse)
@@ -99,7 +113,7 @@ def module(request: Request, mid: str):
 
 
 @app.post("/mark/{pid}")
-def mark(pid: str, status: str = Form(...), next: str = Form("/")):
+def mark(pid: str, status: str = Form(...), next: str = Form("/camp")):
     store.mark(pid, status)
     return RedirectResponse(next, status_code=303)
 
@@ -239,4 +253,4 @@ async def profile(request: Request):
             "weak_modules": [str(v) for v in form.getlist("weak")],
         }
     )
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse("/camp", status_code=303)

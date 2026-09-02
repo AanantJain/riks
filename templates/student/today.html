@@ -1,0 +1,99 @@
+{% extends "exam_base.html" %}
+{% block title %}Today{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Daily bot · {{ snap.today.weekday if snap.today else '' }} · {{ snap.classified.clock.mode_meta.label if snap.classified.clock else '' }}</p>
+    <h1>What has to be done today</h1>
+    {% if snap.today %}<p class="lede">{{ snap.today.note }}</p>{% endif %}
+  </div>
+  {% if snap.classified.clock %}
+  <div class="stat-stack">
+    <div class="stat">
+      <b>{{ snap.classified.clock.remaining_days }}</b>
+      <span>days left</span>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+{% set clock = snap.classified.clock %}{% set progress = snap.classified.progress %}{% set event = 'examination' %}
+{% include "partials/clock.html" %}
+
+<div class="bot-layout">
+  <section class="transcript" aria-label="RIKS coach">
+    {% for m in messages %}
+      <article class="bubble">
+        <span class="who">RIKS</span>
+        <p>{{ m.text | replace('\n', '<br>') | safe }}</p>
+      </article>
+    {% endfor %}
+    {% if snap.yesterday and not snap.yesterday.completed %}
+      <form class="card form compact" method="post" action="/student/yesterday-reason">
+        <label>Why was yesterday incomplete?
+          <select name="reason">
+            <option value="stuck">I did not know how to start the topic</option>
+            <option value="coaching">{% if snap.student.track == 'inicet' %}Test series ran long{% else %}Coaching / VMC ran long{% endif %}</option>
+            <option value="energy">Could not sit long enough</option>
+            <option value="school">{% if snap.student.track == 'inicet' %}Hospital duty overrun{% else %}School leave - missed the chapter{% endif %}</option>
+            <option value="other">Something else</option>
+          </select>
+        </label>
+        <button class="btn solid" type="submit">Tell RIKS</button>
+      </form>
+    {% endif %}
+  </section>
+
+  <aside>
+    {% if snap.today %}
+      <div class="card">
+        <h2>Today’s drill</h2>
+        <ul class="topic-list">
+          {% for t in snap.today.tasks %}
+            <li>
+              <span class="tag">{{ subject_by_id(t.subject_id).name }}</span>
+              {{ t.chapter }}
+              <em>{{ t.minutes }} min</em>
+            </li>
+          {% endfor %}
+        </ul>
+        <a class="btn solid" href="/student/daily-exam">Daily exam ({{ snap.today.daily_question_ids|length }} Q)</a>
+        {% if snap.today.periodic %}
+          <a class="btn brass" href="/student/periodic-exam?subject={{ snap.today.periodic.subject_id }}">{{ snap.today.periodic.title }}</a>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="card">
+      <h2>{% if snap.student.track == 'inicet' %}Missed duty or coaching?{% else %}Missed school or VMC?{% endif %}</h2>
+      <p class="muted">RIKS cannot see the classroom. Log a leave so today's list can cover the gap.</p>
+      <form class="form compact" method="post" action="/student/missed-class">
+        <label>Where
+          <select name="place">
+            {% if snap.student.track == 'inicet' %}
+              <option>Hospital duty</option>
+              <option>Test series / Marrow</option>
+              <option>Online mock</option>
+            {% else %}
+              <option>School</option>
+              <option>VMC</option>
+              <option>Private maths</option>
+            {% endif %}
+          </select>
+        </label>
+        <label>What you think was covered
+          <input name="note" placeholder="{% if snap.student.track == 'inicet' %}e.g. Pharmacology - ANS drugs{% else %}e.g. Life processes - respiration{% endif %}" />
+        </label>
+        <button class="btn ghost" type="submit">Log leave</button>
+      </form>
+      {% if snap.missed %}
+        <ul class="tiny">
+          {% for m in snap.missed[-4:] %}
+            <li>{{ m.when }} · {{ m.place }} — {{ m.note or 'no note' }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </aside>
+</div>
+{% endblock %}

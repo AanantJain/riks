@@ -1,0 +1,51 @@
+{% extends "exam_base.html" %}
+{% block title %}Progress{% endblock %}
+{% block content %}
+<section class="mast">
+  <div>
+    <p class="eyebrow">Evaluations</p>
+    <h1>Where the marks are coming from</h1>
+    <p class="lede">Each row is a topic. Mastery is seeded from what you told RIKS, then pulled toward evidence from daily and periodic papers. The clock below is how that evidence sits against the days you still have.</p>
+  </div>
+</section>
+
+{% set clock = snap.classified.clock %}{% set progress = snap.classified.progress %}{% set event = 'examination' %}
+{% include "partials/clock.html" %}
+
+<table class="result-table">
+  <thead>
+    <tr>
+      <th>Subject</th><th>Chapter</th><th>Board wt</th><th>Likely</th><th>Mastery</th><th>Marks still leaky</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in snap.classified.rows|sort(attribute='priority', reverse=True) %}
+      <tr>
+        <td>{{ subject_by_id(t.subject_id).name }}</td>
+        <td>{{ t.chapter }}</td>
+        <td>{{ t.marks_weight }}</td>
+        <td>{{ (t.probability * 100)|int }}%</td>
+        <td>
+          <div class="mini-bar"><i style="width: {{ t.mastery }}%"></i></div>
+          {{ t.mastery|int }}%
+        </td>
+        <td>{{ t.leak|round(1) }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2 class="block-title">Papers already taken</h2>
+{% if snap.evaluations %}
+  <ul class="eval-log">
+    {% for e in snap.evaluations|reverse %}
+      <li>
+        <strong>{{ e.date }}</strong> · {{ e.kind }} · {{ e.percent }}%
+        ({{ e.awarded }}/{{ e.total }})
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p class="muted">No papers yet. Sit the daily exam today.</p>
+{% endif %}
+{% endblock %}
