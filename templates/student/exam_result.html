@@ -17,7 +17,7 @@
     <tr><th>Topic</th><th>Your answer</th><th>Awarded</th><th>Note</th></tr>
   </thead>
   <tbody>
-    {% for i in result.items %}
+    {% for i in result['items'] %}
       <tr class="{% if i.correct %}ok{% else %}bad{% endif %}">
         <td>{{ topic_by_id(i.topic_id).chapter }}</td>
         <td>{{ i.given or '—' }}</td>

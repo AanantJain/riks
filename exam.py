@@ -213,7 +213,7 @@ def daily_exam(request: Request):
         snap=snap,
         questions=questions,
         kind="daily",
-        title="Daily exam  finish before you sleep",
+        title="Daily exam - finish before you sleep",
         action="/student/daily-exam",
     )
 
@@ -225,6 +225,8 @@ async def submit_daily(request: Request):
         return RedirectResponse("/enter/nikita", status_code=303)
     form = await request.form()
     plan = store.day_plan(sid)
+    if not plan or not plan.get("daily_question_ids"):
+        return RedirectResponse("/student/today", status_code=303)
     qids = plan["daily_question_ids"]
     answers = {qid: str(form.get(qid, "")) for qid in qids}
     result = store.submit_exam(sid, "daily", qids, answers)
@@ -238,6 +240,9 @@ def periodic_exam(request: Request, subject: str = "anatomy"):
     if not sid:
         return RedirectResponse("/enter/nikita", status_code=303)
     snap = store.snapshot(sid)
+    known = {s["id"] for s in bundle_for(snap["student"]).SUBJECTS}
+    if subject not in known:
+        subject = next(iter(known), "anatomy")
     paper = store.periodic_paper(sid, subject)
     return render(
         request,
@@ -246,7 +251,7 @@ def periodic_exam(request: Request, subject: str = "anatomy"):
         questions=paper["questions"],
         kind="periodic",
         subject=subject,
-        title=f"Periodic evaluation  {subject_by_id(subject)['name']}",
+        title=f"Periodic evaluation - {subject_by_id(subject)['name']}",
         action=f"/student/periodic-exam?subject={subject}",
     )
 
@@ -257,6 +262,10 @@ async def submit_periodic(request: Request, subject: str = "anatomy"):
     if not sid:
         return RedirectResponse("/enter/nikita", status_code=303)
     form = await request.form()
+    student = store.get(sid)
+    known = {s["id"] for s in bundle_for(student).SUBJECTS}
+    if subject not in known:
+        subject = next(iter(known), "anatomy")
     paper = store.periodic_paper(sid, subject)
     qids = paper["question_ids"]
     answers = {qid: str(form.get(qid, "")) for qid in qids}

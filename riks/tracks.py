@@ -103,12 +103,18 @@ def current() -> TrackBundle:
 
 def subject_by_id(subject_id: str, bundle: TrackBundle | None = None) -> dict:
     bundle = bundle or current()
-    return next(s for s in bundle.SUBJECTS if s["id"] == subject_id)
+    for s in bundle.SUBJECTS:
+        if s["id"] == subject_id:
+            return s
+    return {"id": subject_id or "", "name": subject_id or "Subject", "color": "#666666"}
 
 
 def topic_by_id(topic_id: str, bundle: TrackBundle | None = None) -> dict:
     bundle = bundle or current()
-    return next(t for t in bundle.TOPICS if t["id"] == topic_id)
+    for t in bundle.TOPICS:
+        if t["id"] == topic_id:
+            return t
+    return {"id": topic_id or "", "chapter": topic_id or "Topic", "subject_id": ""}
 
 
 def topics_for_subject(subject_id: str, bundle: TrackBundle | None = None) -> list:

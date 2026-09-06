@@ -228,8 +228,18 @@ def select_questions(
     ranked = sorted(pool, key=score, reverse=True)
     picked = ranked[:count]
     if len(picked) < count:
-        extra = [q for q in QUESTIONS if q["id"] not in {p["id"] for p in picked}]
-        picked.extend(extra[: count - len(picked)])
+        used_ids = {p["id"] for p in picked}
+        topic_subj = {t["id"]: t["subject_id"] for t in current().TOPICS}
+        wanted = {topic_subj.get(tid) for tid in topic_ids}
+        same_subject = [
+            q
+            for q in QUESTIONS
+            if q["id"] not in used_ids and topic_subj.get(q["topic_id"]) in wanted
+        ]
+        extra = [q for q in QUESTIONS if q["id"] not in used_ids]
+        picked.extend(same_subject[: count - len(picked)])
+        used_ids = {p["id"] for p in picked}
+        picked.extend([q for q in extra if q["id"] not in used_ids][: count - len(picked)])
     return picked[:count]
 
 
@@ -318,6 +328,21 @@ def build_schedule(student: dict, evaluations: list[dict], today: date | None = 
     work = [r for r in ranked if r["id"] not in leave_ids] or ranked or classified["rows"]
     n_focus = int(mode.get("focus") or 2)
 
+    def focus_for_day(day: date, i: int) -> list:
+        pool = work
+        if bundle.WEEK_PLAN:
+            w = current_week(student, day)
+            week_pool = [r for r in work if (r.get("study_week") or 8) == w]
+            nxt = [r for r in work if (r.get("study_week") or 8) == w + 1]
+            pool = week_pool or (week_pool + nxt) or work
+            if len(pool) < n_focus:
+                extra = [r for r in work if r["id"] not in {p["id"] for p in pool}]
+                pool = pool + extra
+            offset = day.weekday()
+        else:
+            offset = i
+        return [pool[(offset + k) % len(pool)] for k in range(min(n_focus, len(pool)))]
+
     days = []
     subject_cycle = [s["id"] for s in bundle.SUBJECTS]
     q_cursor = 0
@@ -326,7 +351,7 @@ def build_schedule(student: dict, evaluations: list[dict], today: date | None = 
         day = start + timedelta(days=i)
         minutes = int(_weekday_minutes(student, day) * pace)
         minutes = max(45, minutes)
-        focus = [work[(i + k) % len(work)] for k in range(min(n_focus, len(work)))]
+        focus = focus_for_day(day, i)
         # Personal review: a topic this student is due to forget.
         review = None
         for r in ranked:

@@ -73,6 +73,11 @@ def choose(request: Request):
     return templates.TemplateResponse(request, "choose.html", {})
 
 
+@app.get("/overview", response_class=HTMLResponse)
+def overview(request: Request):
+    return templates.TemplateResponse(request, "overview.html", {})
+
+
 @app.get("/camp", response_class=HTMLResponse)
 def home(request: Request):
     return render(request, "home.html")
