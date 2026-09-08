@@ -15,7 +15,7 @@ MODULES = [
         "theory": [
             {"title": "Competitive Programmer's Handbook, Ch. 1–2 (free PDF)", "url": "https://cses.fi/book/book.pdf", "source": "CSES"},
             {"title": "USACO Guide — Introducing Competitive Programming", "url": "https://usaco.guide/general/intro-cp", "source": "USACO Guide"},
-            {"title": "CP-Algorithms — time complexity", "url": "https://cp-algorithms.com/others/time_complexity.html", "source": "CP-Algorithms"},
+            {"title": "GeeksforGeeks — DSA hub (free articles)", "url": "https://www.geeksforgeeks.org/dsa/dsa-tutorial-learn-data-structures-and-algorithms/", "source": "GeeksforGeeks"},
             {"title": "Errichto — C++ for competitive programming", "url": "https://www.youtube.com/watch?v=LamhEkxmP1Q", "source": "YouTube"},
         ],
         "problems": [
@@ -43,6 +43,8 @@ MODULES = [
         "theory": [
             {"title": "USACO Guide — Ad Hoc Problems", "url": "https://usaco.guide/bronze/ad-hoc", "source": "USACO Guide"},
             {"title": "CSES introductory problems", "url": "https://cses.fi/problemset/", "source": "CSES"},
+            {"title": "GeeksforGeeks — Hashing", "url": "https://www.geeksforgeeks.org/dsa/hashing-data-structure/", "source": "GeeksforGeeks"},
+            {"title": "GeeksforGeeks — Stack", "url": "https://www.geeksforgeeks.org/dsa/stack-data-structure/", "source": "GeeksforGeeks"},
         ],
         "problems": [
             {"id": "cses-1069", "name": "Repetitions", "oj": "CSES", "rating": 800, "url": "https://cses.fi/problemset/task/1069"},
@@ -93,6 +95,7 @@ MODULES = [
             {"title": "USACO Guide — Greedy with sorting (Silver)", "url": "https://usaco.guide/silver/greedy-sorting", "source": "USACO Guide"},
             {"title": "CP-Algorithms — Scheduling problems", "url": "https://cp-algorithms.com/schedules/schedule-description.html", "source": "CP-Algorithms"},
             {"title": "Errichto — Greedy algorithms", "url": "https://www.youtube.com/watch?v=H-QsB2MgcxM", "source": "YouTube"},
+            {"title": "GeeksforGeeks — Kadane / activity selection", "url": "https://www.geeksforgeeks.org/dsa/largest-sum-contiguous-subarray/", "source": "GeeksforGeeks"},
         ],
         "problems": [
             {"id": "cses-1621", "name": "Distinct Numbers", "oj": "CSES", "rating": 800, "url": "https://cses.fi/problemset/task/1621"},
@@ -258,7 +261,7 @@ SHELVES = [
             {"name": "USACO Guide", "url": "https://usaco.guide/", "why": "Bronze → Plat roadmap, articles + problem lists."},
             {"name": "CSES Problem Set", "url": "https://cses.fi/problemset/", "why": "300 well-ordered tasks. The standard grind."},
             {"name": "Competitive Programmer's Handbook", "url": "https://cses.fi/book/book.pdf", "why": "Free PDF that matches CSES."},
-            {"name": "CP-Algorithms", "url": "https://cp-algorithms.com/", "why": "Reference implementations. Search here mid-contest."},
+            {"name": "GeeksforGeeks DSA", "url": "https://www.geeksforgeeks.org/dsa/dsa-tutorial-learn-data-structures-and-algorithms/", "why": "Short articles on hashing, graphs, DP. Use after a miss, not as the whole syllabus."},
         ],
     },
     {

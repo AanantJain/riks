@@ -537,6 +537,10 @@ DRILLS: list[dict] = [
     },
 ]
 
+from camp.drills_extra import EXTRA_DRILLS
+
+DRILLS.extend(EXTRA_DRILLS)
+
 
 def drill_by_id(qid: str) -> dict | None:
     return next((d for d in DRILLS if d["id"] == qid), None)

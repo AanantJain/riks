@@ -1116,6 +1116,11 @@ QUESTIONS = [
 ]
 
 
+from riks.questions_inicet_extra import EXTRA
+
+QUESTIONS.extend(EXTRA)
+
+
 def questions_for_topic(topic_id: str) -> list:
     return [q for q in QUESTIONS if q["topic_id"] == topic_id]
 
