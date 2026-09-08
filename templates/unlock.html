@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RIKS — family gate</title>
-  <link rel="stylesheet" href="/static/css/app.css?v=pitch" />
+  <link rel="stylesheet" href="/static/css/app.css?v=rebuild" />
 </head>
 <body>
   <main id="main" class="narrow">
@@ -17,6 +17,7 @@
     </section>
     <form class="card form" method="post" action="/unlock">
       {% if wrong %}<p class="flag">That password did not match.</p>{% endif %}
+      <input type="hidden" name="next" value="{{ next_path }}" />
       <label>Password
         <input type="password" name="password" autocomplete="current-password" autofocus />
       </label>

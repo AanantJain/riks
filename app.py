@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import hmac
 import os
+from http.cookies import SimpleCookie
 from pathlib import Path
+from urllib.parse import quote
 
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Form, Query, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -33,6 +35,14 @@ app.include_router(exam_router)
 
 FAMILY_PASSWORD = os.environ.get("RIKS_PASSWORD", "").strip()
 FAMILY_COOKIE = hmac.new(b"riks-contest", FAMILY_PASSWORD.encode(), "sha256").hexdigest()[:32] if FAMILY_PASSWORD else ""
+PUBLIC_PATHS = {"/", "/unlock", "/healthz"}
+
+
+def safe_next(value: str | None) -> str:
+    raw = (value or "/").strip()
+    if raw.startswith("/") and not raw.startswith("//") and "://" not in raw and not raw.startswith("/unlock"):
+        return raw
+    return "/"
 
 
 class FamilyGateMiddleware:
@@ -46,20 +56,26 @@ class FamilyGateMiddleware:
             await self.app(scope, receive, send)
             return
         path = scope.get("path", "")
-        if path.startswith("/static") or path in {"/unlock", "/healthz"}:
+        if path.startswith("/static") or path in PUBLIC_PATHS:
             await self.app(scope, receive, send)
             return
         cookie = ""
         raw = Headers(scope=scope).get("cookie") or ""
-        for part in raw.split(";"):
-            part = part.strip()
-            if part.startswith("riks_family="):
-                cookie = part.split("=", 1)[1]
-                break
+        parsed = SimpleCookie()
+        try:
+            parsed.load(raw)
+        except Exception:
+            parsed = SimpleCookie()
+        if "riks_family" in parsed:
+            cookie = parsed["riks_family"].value
         if cookie == FAMILY_COOKIE:
             await self.app(scope, receive, send)
             return
-        response = RedirectResponse("/unlock", status_code=303)
+        qs = scope.get("query_string") or b""
+        if isinstance(qs, bytes):
+            qs = qs.decode("latin-1")
+        dest = path + (f"?{qs}" if qs else "")
+        response = RedirectResponse(f"/unlock?next={quote(safe_next(dest), safe='/')}", status_code=303)
         await response(scope, receive, send)
 
 
@@ -77,14 +93,19 @@ def render(request: Request, name: str, **ctx):
 
 
 @app.get("/unlock", response_class=HTMLResponse)
-def unlock_form(request: Request, wrong: int = 0):
-    return templates.TemplateResponse(request, "unlock.html", {"wrong": bool(wrong)})
+def unlock_form(request: Request, wrong: int = 0, next_path: str = Query("/", alias="next")):
+    return templates.TemplateResponse(
+        request,
+        "unlock.html",
+        {"wrong": bool(wrong), "next_path": safe_next(next_path)},
+    )
 
 
 @app.post("/unlock")
-def unlock_submit(password: str = Form("")):
+def unlock_submit(password: str = Form(""), next_path: str = Form("/", alias="next")):
+    dest = safe_next(next_path)
     if FAMILY_PASSWORD and password == FAMILY_PASSWORD:
-        resp = RedirectResponse("/", status_code=303)
+        resp = RedirectResponse(dest, status_code=303)
         resp.set_cookie(
             "riks_family",
             FAMILY_COOKIE,
@@ -94,7 +115,7 @@ def unlock_submit(password: str = Form("")):
             path="/",
         )
         return resp
-    return RedirectResponse("/unlock?wrong=1", status_code=303)
+    return RedirectResponse(f"/unlock?wrong=1&next={quote(dest, safe='/')}", status_code=303)
 
 
 @app.get("/", response_class=HTMLResponse)
