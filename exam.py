@@ -130,7 +130,8 @@ def student_home(request: Request):
     if not sid:
         return RedirectResponse("/enter/nikita", status_code=303)
     snap = store.snapshot(sid)
-    return render(request, "student/dashboard.html", snap=snap)
+    rebuilt = request.query_params.get("rebuilt") == "1"
+    return render(request, "student/dashboard.html", snap=snap, rebuilt=rebuilt)
 
 
 @router.post("/student/profile")
@@ -154,7 +155,7 @@ async def student_profile(request: Request):
             "reset": form.get("reset") == "1",
         },
     )
-    return RedirectResponse("/student", status_code=303)
+    return RedirectResponse("/student?rebuilt=1", status_code=303)
 
 
 @router.get("/student/today", response_class=HTMLResponse)

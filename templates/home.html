@@ -3,6 +3,9 @@
 {% block content %}
 {% set c = snap.classified %}
 {% set s = snap.state %}
+{% if rebuilt %}
+<p class="notice">Journey rebuilt for this target. Calendar starts today. Today's minimum set is below.</p>
+{% endif %}
 <section class="mast">
   <div>
     <p class="eyebrow">{{ c.goal.label }} · {{ s.contest_date }} target contest</p>
@@ -28,6 +31,10 @@
     </div>
   </div>
 </section>
+
+{% set today_href = "/today" %}{% set exam_href = "/practice/daily" %}{% set coach_href = "/coach" %}
+{% include "partials/loop.html" %}
+<p class="more-links">Also: <a href="/schedule">Schedule</a> · <a href="/path">Path</a> · <a href="/contests">Live rounds</a> · <a href="/resources">Library</a></p>
 
 {% set clock = c.clock %}{% set progress = c.progress %}{% set event = 'contest' %}
 {% include "partials/clock.html" %}
@@ -108,9 +115,9 @@
 </section>
 {% endif %}
 
-<section class="card">
+<section class="card" id="plan">
   <h2>Tell RIKS the target</h2>
-  <p class="muted">Handle, rating goal, hours, and which topics already feel strong or weak. The schedule changes with this.</p>
+  <p class="muted">Handle, rating goal, hours, and which topics already feel strong or weak. Rebuild when the contest date or goal changes.</p>
   <form class="form" method="post" action="/profile">
     <div class="row">
       <label>Handle <input name="handle" value="{{ s.handle }}" placeholder="Aanant" /></label>
@@ -148,6 +155,7 @@
         {% endfor %}
       </div>
     </fieldset>
+    <label class="check caution"><input type="checkbox" name="reset" value="1" /> Start from scratch (clear solved problems and daily logs)</label>
     <button class="btn solid" type="submit">Rebuild the journey</button>
   </form>
 </section>

@@ -69,6 +69,15 @@ class Store:
             self.state["hours_per_day"] = int(payload["hours_per_day"])
         self.state["strong_modules"] = payload.get("strong_modules") or []
         self.state["weak_modules"] = payload.get("weak_modules") or []
+        # Rebuild starts the remaining-days clock from today so the board visibly updates.
+        self.state["started"] = _today()
+        if payload.get("reset"):
+            self.state["solved"] = {}
+            self.state["skipped"] = {}
+            self.state["notes"] = {}
+            self.state["completions"] = {}
+            self.state["drill_log"] = []
+            self.state["drills_solved"] = {}
         self.save()
 
     def mark(self, pid: str, status: str) -> None:

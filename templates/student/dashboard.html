@@ -3,6 +3,9 @@
 {% block content %}
 {% set s = snap.student %}
 {% set c = snap.classified %}
+{% if rebuilt %}
+<p class="notice">Schedule rebuilt for this exam date and target. Today's minimum set is below.</p>
+{% endif %}
 <section class="mast">
   <div>
     <p class="eyebrow">{{ s.board }} {{ s.class_level }} · {{ targets[s.target].label }}{% if c.study_week %} · Week {{ c.study_week }}/8{% endif %}</p>
@@ -30,6 +33,10 @@
     </div>
   </div>
 </section>
+
+{% set today_href = "/student/today" %}{% set exam_href = "/student/daily-exam" %}{% set coach_href = "/parent" %}
+{% include "partials/loop.html" %}
+<p class="more-links">Also: <a href="/student/schedule">Schedule</a>{% if s.track == 'inicet' %} · <a href="/student/week-plan">8-week plan</a>{% endif %} · <a href="/student/periodic-exam">Weekly mock</a> · <a href="/student/progress">Progress</a></p>
 
 {% set clock = c.clock %}{% set progress = c.progress %}{% set event = 'examination' %}
 {% include "partials/clock.html" %}

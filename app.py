@@ -20,6 +20,9 @@ from camp.store import store
 from exam import bind as bind_exam
 from exam import router as exam_router
 
+from starlette.datastructures import Headers
+from starlette.types import ASGIApp, Receive, Scope, Send
+
 ROOT = Path(__file__).resolve().parent
 app = FastAPI(title="RIKS Contest")
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
@@ -32,16 +35,35 @@ FAMILY_PASSWORD = os.environ.get("RIKS_PASSWORD", "").strip()
 FAMILY_COOKIE = hmac.new(b"riks-contest", FAMILY_PASSWORD.encode(), "sha256").hexdigest()[:32] if FAMILY_PASSWORD else ""
 
 
-@app.middleware("http")
-async def family_gate(request: Request, call_next):
-    if not FAMILY_PASSWORD:
-        return await call_next(request)
-    path = request.url.path
-    if path.startswith("/static") or path in {"/unlock", "/healthz"}:
-        return await call_next(request)
-    if request.cookies.get("riks_family") == FAMILY_COOKIE:
-        return await call_next(request)
-    return RedirectResponse("/unlock", status_code=303)
+class FamilyGateMiddleware:
+    """ASGI gate that does not consume the request body (so POST forms still work)."""
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http" or not FAMILY_PASSWORD:
+            await self.app(scope, receive, send)
+            return
+        path = scope.get("path", "")
+        if path.startswith("/static") or path in {"/unlock", "/healthz"}:
+            await self.app(scope, receive, send)
+            return
+        cookie = ""
+        raw = Headers(scope=scope).get("cookie") or ""
+        for part in raw.split(";"):
+            part = part.strip()
+            if part.startswith("riks_family="):
+                cookie = part.split("=", 1)[1]
+                break
+        if cookie == FAMILY_COOKIE:
+            await self.app(scope, receive, send)
+            return
+        response = RedirectResponse("/unlock", status_code=303)
+        await response(scope, receive, send)
+
+
+app.add_middleware(FamilyGateMiddleware)
 
 
 @app.get("/healthz")
@@ -63,7 +85,14 @@ def unlock_form(request: Request, wrong: int = 0):
 def unlock_submit(password: str = Form("")):
     if FAMILY_PASSWORD and password == FAMILY_PASSWORD:
         resp = RedirectResponse("/", status_code=303)
-        resp.set_cookie("riks_family", FAMILY_COOKIE, httponly=True, samesite="lax", max_age=60 * 60 * 24 * 120)
+        resp.set_cookie(
+            "riks_family",
+            FAMILY_COOKIE,
+            httponly=True,
+            samesite="lax",
+            max_age=60 * 60 * 24 * 120,
+            path="/",
+        )
         return resp
     return RedirectResponse("/unlock?wrong=1", status_code=303)
 
@@ -80,7 +109,7 @@ def overview(request: Request):
 
 @app.get("/camp", response_class=HTMLResponse)
 def home(request: Request):
-    return render(request, "home.html")
+    return render(request, "home.html", rebuilt=request.query_params.get("rebuilt") == "1")
 
 
 @app.get("/board", response_class=HTMLResponse)
@@ -245,6 +274,11 @@ async def practice_one_submit(request: Request, qid: str):
     )
 
 
+@app.get("/profile")
+def profile_get():
+    return RedirectResponse("/camp#plan", status_code=303)
+
+
 @app.post("/profile")
 async def profile(request: Request):
     form = await request.form()
@@ -256,6 +290,7 @@ async def profile(request: Request):
             "hours_per_day": str(form.get("hours_per_day") or "2"),
             "strong_modules": [str(v) for v in form.getlist("strong")],
             "weak_modules": [str(v) for v in form.getlist("weak")],
+            "reset": form.get("reset") == "1",
         }
     )
-    return RedirectResponse("/camp", status_code=303)
+    return RedirectResponse("/camp?rebuilt=1", status_code=303)

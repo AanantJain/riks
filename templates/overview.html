@@ -3,105 +3,94 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>RIKS - how to use</title>
-  <link rel="stylesheet" href="/static/css/app.css?v=family" />
+  <title>RIKS - the story</title>
+  <link rel="stylesheet" href="/static/css/app.css?v=pitch" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
   <main id="main" class="narrow">
     <section class="hero">
-      <p class="eyebrow">Overview</p>
-      <h1>How to use RIKS</h1>
+      <p class="eyebrow">The story</p>
+      <h1>One engine. Two exams. One loop a night.</h1>
       <p class="lede">
-        One family app. Open the link, type the password once, then pick a desk.
-        Switch at the top always comes back to the chooser.
+        Indian families already buy coaching. What they still do not have is a governor
+        for the remaining days: what to sit tonight, why it matters for the mark sheet,
+        and what the parent is allowed to help with.
       </p>
       <div class="cta-row">
-        <a class="btn solid" href="/">Choose a desk</a>
-        <a class="btn brass" href="/camp">Aanant</a>
-        <a class="btn brass" href="/enter/nikita">Nikita</a>
+        <a class="btn solid" href="/camp">Open contest demo</a>
+        <a class="btn brass" href="/enter/nikita">Open INI-CET demo</a>
+        <a class="btn ghost" href="/">All desks</a>
       </div>
     </section>
 
-    <section class="card">
-      <h2>0. First open</h2>
+    <section>
+      <h2>The problem</h2>
+      <p>
+        Coaching and YouTube are infinite. Time is not. Parents add sheets. Students
+        pick at random. Progress looks busy and the exam date does not move.
+      </p>
+    </section>
+
+    <section>
+      <h2>What RIKS is</h2>
+      <p>
+        A family product that holds the clock, the marking scheme, and a personal skill
+        model. It outputs a <strong>minimum set before sleep</strong> and an
+        <strong>in-app paper</strong>. The plan rewrites from that paper. Empty bars on
+        day one are the point: nothing is faked.
+      </p>
+    </section>
+
+    <section class="steps">
+      <article>
+        <p class="n">1</p>
+        <h3>See today</h3>
+        <p>Open <strong>Today</strong>. Read the named set. That is the sitting.</p>
+      </article>
+      <article>
+        <p class="n">2</p>
+        <h3>Sit the paper</h3>
+        <p>Open <strong>Practice</strong> (contest) or <strong>Daily exam</strong> (INI-CET). Submit. Get topic-level notes.</p>
+      </article>
+      <article>
+        <p class="n">3</p>
+        <h3>Coach the leak</h3>
+        <p>Open <strong>Coach</strong>. Help the named chapter. Do not pile random work. Do not scold a single %.</p>
+      </article>
+    </section>
+
+    <section>
+      <h2>Two desks, same loop</h2>
+      <p>
+        <strong>Aanant</strong> is contest rating (Codeforces / CSES). Board shows projected
+        rating versus the goal. Live rounds stay on the actual judge; RIKS grades the home paper.
+      </p>
+      <p>
+        <strong>Nikita</strong> is INI-CET. Desk shows an 8-week subject block, hospital-duty
+        hours, and progress versus a rank band. Tick <strong>Start from scratch</strong> only
+        if the date or the story of past papers must be wiped.
+      </p>
+      <p class="muted">
+        Desks (top left) always returns to pick a desk. Leave on Nikita's desk
+        returns to the chooser; it does not clear the family password.
+      </p>
+    </section>
+
+    <section>
+      <h2>What to show an investor in five minutes</h2>
       <ol class="flow">
-        <li>Open the RIKS URL (or add it to the Home Screen).</li>
-        <li>If asked, enter the family password.</li>
-        <li>On <strong>Who is opening RIKS?</strong> pick Aanant, Nikita, or Nikita's coach view.</li>
+        <li>Chooser: the thesis, then open a desk.</li>
+        <li>Desk: days left, progress at 0% if no papers yet.</li>
+        <li>Today → sit the paper → result page names topics, not character.</li>
+        <li>Coach: “You can / Please do not.”</li>
+        <li>Other desk: same loop, different exam.</li>
       </ol>
-    </section>
-
-    <section class="card">
-      <h2>1. Aanant - typical day</h2>
-      <p class="muted">Finish today's named problems and the in-app daily exam.</p>
-      <ol class="flow">
-        <li><strong>Board</strong> - clock, projected rating, strong / needs work.</li>
-        <li>Use <strong>Tell RIKS the target</strong> only when the contest date, rating goal, or strong/weak topics changed. Then rebuild.</li>
-        <li><strong>Today</strong> - the bot lists the minimum set before sleep.</li>
-        <li><strong>Practice</strong> or the daily exam - try questions in RIKS; it grades them and updates the plan.</li>
-        <li>For live rounds: <strong>Periodic</strong> (Codeforces) and <strong>Library</strong>.</li>
-        <li>If yesterday was unfinished, the bot asks why - answer that; it is not a scolding screen.</li>
-      </ol>
-      <p class="muted">Weekly: sit a real Codeforces/AtCoder round, then upsolve. Coach shows which module to help with.</p>
-    </section>
-
-    <section class="card">
-      <h2>2. Nikita - first time</h2>
-      <p class="muted">Set the real INI-CET date. Start at zero - no fake papers.</p>
-      <ol class="flow">
-        <li>Open <strong>Nikita's desk</strong>.</li>
-        <li>On Desk, scroll to <strong>Tell RIKS the plan</strong>: exam date, target band, hospital duty / test series, strong and weak subjects.</li>
-        <li>Optionally tick <strong>Start from scratch</strong>.</li>
-        <li>Tap <strong>Rebuild my schedule</strong>.</li>
-        <li>Open <strong>8-week plan</strong> once to see Week 1-8 (anatomy through the full 200-Q mock).</li>
-      </ol>
-      <p class="muted">Progress vs target stays 0% until she sits a paper. That is correct.</p>
-    </section>
-
-    <section class="card">
-      <h2>3. Nikita - typical day</h2>
-      <ol class="flow">
-        <li><strong>Desk</strong> - days left, this week's focus, minimum set before sleep.</li>
-        <li><strong>Today</strong> - bot: today's chapters and why they matter.</li>
-        <li><strong>Daily exam</strong> - finish the MCQs. Explanations appear; tomorrow's list can change.</li>
-        <li>If duty or a mock ran long: <strong>Log leave</strong> on Today.</li>
-        <li>If yesterday was incomplete: say why (stuck, test series, duty, energy).</li>
-      </ol>
-      <p class="muted">Weekly: on the Periodic day, take that week's mock (50 / 100 / Week 8: 200 Q). Change the exam date anytime in Tell RIKS the plan, then rebuild.</p>
-    </section>
-
-    <section class="card">
-      <h2>4. Parent / coach</h2>
-      <ul class="plain">
-        <li><strong>Aanant</strong> - open Coach on his desk. Read standing, today's list, You can / Please do not. Help the named module; do not pile random sheets.</li>
-        <li><strong>Nikita</strong> - open Coach on her desk, or Coach view from the chooser. Help the named subject (for example redo Pharma MCQs). Do not scold a single percentage.</li>
-        <li>If a day was missed, ask them to open Today and log it. RIKS already names the catch-up.</li>
-      </ul>
-    </section>
-
-    <section class="card">
-      <h2>5. Switch people on one phone</h2>
-      <ol class="flow">
-        <li>Tap <strong>Switch</strong> (or the RIKS logo).</li>
-        <li>Pick the other desk.</li>
-        <li><strong>Leave</strong> on Nikita's desk only returns to the chooser. It does not clear the family password.</li>
-      </ol>
-    </section>
-
-    <section class="card">
-      <h2>What good use looks like</h2>
-      <ul class="plain">
-        <li>One sitting a day: Today, then the daily exam, then sleep.</li>
-        <li>Change the plan only when the date, target, or load changed - not every evening.</li>
-        <li>Coach reads topic leaks, not character.</li>
-        <li>Progress moves only after real papers. Empty bars on day one are correct.</li>
-      </ul>
     </section>
 
     <p class="cta-row">
-      <a class="btn solid" href="/">Back to chooser</a>
+      <a class="btn solid" href="/">Open a desk</a>
     </p>
   </main>
 </body>

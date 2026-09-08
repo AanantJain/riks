@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/css/app.css?v=family" />
+  <link rel="stylesheet" href="/static/css/app.css?v=rebuild" />
 </head>
 <body class="{% block body_class %}{% endblock %}">
   <a class="skip" href="#main">Skip to content</a>
@@ -23,16 +23,12 @@
       </span>
     </a>
     <nav class="top-nav">
-      <a href="/">Switch</a>
-      <a href="/overview">Overview</a>
+      <a href="/">Desks</a>
+      <a href="/overview">Story</a>
       {% if student %}
         <a href="/student">Desk</a>
         <a href="/student/today">Today</a>
-        <a href="/student/schedule">Schedule</a>
-        {% if student.track == 'inicet' %}<a href="/student/week-plan">8-week plan</a>{% endif %}
-        <a href="/student/daily-exam">Daily exam</a>
-        <a href="/student/periodic-exam">Periodic</a>
-        <a href="/student/progress">Progress</a>
+        <a href="/student/daily-exam">Sit the paper</a>
         <a href="/parent">Coach</a>
         <a class="ghost" href="/logout">Leave</a>
       {% endif %}
